@@ -20,26 +20,40 @@ EXTENT = 1.0e5  # metres; coordinates beyond this are almost certainly a mistake
 
 
 # --------------------------------------------------------------------------- connection helper
-def _tapir(port: int, command: str, params: Dict[str, Any] | None = None) -> Dict[str, Any]:
+# A long-lived server's connection to Archicad can intermittently hang on a stale /
+# unresponsive socket. Without a timeout that blocks for minutes (Claude Desktop then
+# reports the tool as "timed out"). We bound every call with a timeout so a stuck call
+# fails in seconds, and on failure we refresh the connection so the NEXT call is healthy.
+# We deliberately do NOT auto-re-run the command: a create may have partially executed,
+# and a blind retry would duplicate it. The caller can retry on the now-fresh connection.
+_CALL_TIMEOUT = 45.0  # seconds; generous for legitimate ops, far below a 4-min hang
+
+
+def _tapir(port: int, command: str, params: Dict[str, Any] | None = None,
+           timeout: float = _CALL_TIMEOUT) -> Dict[str, Any]:
     multi_conn = multi_conn_instance.get()
     tp = Port(port)
-    try:
-        if tp not in multi_conn.active:
-            raise ConnectionError("port not in active connections")
-        return multi_conn.active[tp].core.post_tapir_command(command=command, parameters=params or {})
-    except Exception as first:
-        # A long-lived server's cached connection can go stale (the symptom is calls
-        # timing out while a fresh connection works). Refresh once and retry before failing.
-        log.warning("post_tapir_command(%s) failed (%s); refreshing connection and retrying once.",
-                    command, type(first).__name__)
+    if tp not in multi_conn.active:
+        # connection list may be stale (e.g. Archicad was reopened) - refresh once
         try:
             multi_conn.refresh.all_ports()
             multi_conn.connect.all()
-        except Exception as refresh_err:
-            log.warning("connection refresh failed: %s", refresh_err)
-        if tp not in multi_conn.active:
-            raise ValueError(f"Port {port} is not an active Archicad connection.")
-        return multi_conn.active[tp].core.post_tapir_command(command=command, parameters=params or {})
+        except Exception:
+            pass
+    if tp not in multi_conn.active:
+        raise ValueError(f"Port {port} is not an active Archicad connection.")
+    try:
+        return multi_conn.active[tp].core.post_tapir_command(
+            command=command, parameters=params or {}, timeout=timeout)
+    except Exception as e:
+        log.warning("post_tapir_command(%s) failed/timed out (%s); refreshing connection for next call.",
+                    command, type(e).__name__)
+        try:
+            multi_conn.refresh.all_ports()
+            multi_conn.connect.all()
+        except Exception:
+            pass
+        raise
 
 
 # --------------------------------------------------------------------------- geometry validation
