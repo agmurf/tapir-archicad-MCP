@@ -11,3 +11,6 @@ wheels/
 
 # logs
 *.log
+
+# never ship the private working-notes folder if it is ever copied in here
+Claude Instructions to make changes to MCP/
