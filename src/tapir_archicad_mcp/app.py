@@ -5,6 +5,7 @@ from collections.abc import AsyncIterator
 from mcp.server.fastmcp import FastMCP
 from multiconn_archicad.multi_conn import MultiConn
 
+import tapir_archicad_mcp.port_range_override  # noqa: F401  (widens Archicad JSON port range on import)
 from tapir_archicad_mcp.context import mcp_instance, multi_conn_instance
 
 @asynccontextmanager

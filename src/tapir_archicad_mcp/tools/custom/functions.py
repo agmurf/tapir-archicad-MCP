@@ -110,6 +110,19 @@ def archicad_call_tool(name: str, arguments: dict) -> dict:
         # Check if the agent wrapped the params in a 'params' key or flattened them
         raw_params = arguments.get('params', arguments)
 
+        # Always-on geometry validation for create commands: reject degenerate /
+        # self-intersecting polygons, zero-length walls, non-finite coordinates, etc.
+        # BEFORE anything is committed to the model. No-op for non-validated tools.
+        from tapir_archicad_mcp.tools.custom.safety import validate_tool_call
+        geometry_errors = validate_tool_call(name, raw_params)
+        if geometry_errors:
+            log.info(f"Geometry validation rejected {name}: {geometry_errors}")
+            return {
+                "committed": False,
+                "validationErrors": geometry_errors,
+                "message": f"Rejected by geometry validation before calling '{name}'. Fix the geometry and retry.",
+            }
+
         try:
             params_instance = params_model.model_validate(raw_params)
             call_args['params'] = params_instance
