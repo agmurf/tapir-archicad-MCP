@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Architech ArchiCAD MCP - Diagnostic Guide</title>
+<style>
+  @page { size: A4; margin: 18mm 16mm; }
+  * { box-sizing: border-box; }
+  body { font-family: "Segoe UI", Arial, sans-serif; color: #1f2733; line-height: 1.5; font-size: 11.5pt; margin: 0; }
+  h1 { font-size: 23pt; color: #0b66c3; margin: 0 0 2px; }
+  h2 { font-size: 14.5pt; color: #0b66c3; margin: 26px 0 8px; padding-bottom: 5px; border-bottom: 2px solid #e3edf7; }
+  .sub { color: #5b6675; font-size: 11pt; margin: 0 0 18px; }
+  p { margin: 8px 0; }
+  a { color: #0b66c3; text-decoration: none; font-weight: 600; }
+  .card { background: #f5f9fd; border: 1px solid #dce8f4; border-radius: 10px; padding: 16px 18px; margin: 14px 0; }
+  .big { border: 2px solid #0b66c3; background: #eef6ff; }
+  .step { display: flex; gap: 12px; margin: 14px 0; align-items: flex-start; }
+  .num { flex: 0 0 30px; height: 30px; width: 30px; background: #0b66c3; color: #fff; border-radius: 50%;
+         font-weight: 700; text-align: center; line-height: 30px; font-size: 13pt; }
+  .step .body { flex: 1; }
+  .step .body b { color: #0b2440; }
+  code, .mono { font-family: "Consolas", "Courier New", monospace; }
+  .cmd { background: #0d1b2a; color: #e8f0fb; border-radius: 8px; padding: 13px 15px; margin: 8px 0;
+         font-family: "Consolas", monospace; font-size: 10.5pt; word-break: break-all; user-select: all; }
+  .cmd .hint { display:block; color:#7fa8d6; font-size: 8.5pt; margin-bottom: 6px; font-family: "Segoe UI", sans-serif; }
+  .pill { display: inline-block; background: #0b66c3; color: #fff; padding: 7px 14px; border-radius: 20px;
+          font-weight: 700; font-size: 11pt; }
+  .ok { color: #1a8f4a; font-weight: 700; }
+  .warn { color: #b9770b; font-weight: 700; }
+  ul { margin: 6px 0 6px 4px; padding-left: 20px; }
+  li { margin: 5px 0; }
+  .note { font-size: 10pt; color: #5b6675; }
+  hr { border: none; border-top: 1px solid #e3edf7; margin: 26px 0; }
+  .footer { margin-top: 30px; font-size: 9.5pt; color: #8a95a3; text-align: center; }
+</style>
+</head>
+<body>
+
+<h1>Is ArchiCAD connected to Claude?</h1>
+<p class="sub">A 15-second check &mdash; no technical knowledge needed.</p>
+
+<div class="card big">
+  <p style="margin:0 0 4px;"><b>If Claude says it can only use a &ldquo;Linux container&rdquo; or can&rsquo;t see your computer:</b></p>
+  <p style="margin:0;">That just means the ArchiCAD connection didn&rsquo;t load. This guide runs an automatic check
+  and saves a small report to your Desktop. <b>Email that report back</b> and we&rsquo;ll have it fixed quickly.</p>
+</div>
+
+<h2>First, a 10-second sanity check</h2>
+<p>Make sure you are using the <b>installed Claude Desktop app</b> &mdash; a program in its own window &mdash;
+<b>not</b> the Claude website in a web browser (Chrome/Edge). The website cannot reach your computer and will
+always give the &ldquo;Linux container&rdquo; message.</p>
+<p class="note">Don&rsquo;t have the app? Install it free from
+<a href="https://claude.ai/download">https://claude.ai/download</a>, then re-run the installer.</p>
+
+<h2>Run the automatic check</h2>
+
+<div class="step">
+  <div class="num">1</div>
+  <div class="body">
+    <b>Open PowerShell.</b> Click the Windows <b>Start</b> button, type <span class="mono">powershell</span>,
+    and press <b>Enter</b>. A dark blue window opens. (This is the same window you used to install.)
+  </div>
+</div>
+
+<div class="step">
+  <div class="num">2</div>
+  <div class="body">
+    <b>Copy the line below</b> (triple-click it to select, then Ctrl&#8209;C), click into the blue window,
+    paste with <b>Ctrl&#8209;V</b>, and press <b>Enter</b>.
+    <div class="cmd"><span class="hint">&#9656; the one-line check &mdash; copy all of it</span>irm https://raw.githubusercontent.com/agmurf/tapir-archicad-MCP/master/diagnose.ps1 | iex</div>
+  </div>
+</div>
+
+<div class="step">
+  <div class="num">3</div>
+  <div class="body">
+    <b>Wait about 15 seconds.</b> You&rsquo;ll see a list of checks with <span class="ok">[ OK ]</span> or
+    <span class="warn">[PROBLEM]</span> next to each, and a plain-English summary at the bottom.
+  </div>
+</div>
+
+<div class="step">
+  <div class="num">4</div>
+  <div class="body">
+    <b>Email the report.</b> A file named <span class="mono">Architech-Diagnostic-Report.txt</span> is now on your
+    <b>Desktop</b>. Attach it to a reply &mdash; that tells us exactly what to fix.
+  </div>
+</div>
+
+<hr>
+
+<h2>Prefer one click? Use the tool file instead</h2>
+<p>If copying and pasting feels fiddly, download this small file and <b>double-click it</b> &mdash; it runs the
+exact same check:</p>
+<p><a href="https://github.com/agmurf/tapir-archicad-MCP/raw/master/Diagnose-ArchitechMCP.bat">&#11015; Download Diagnose-ArchitechMCP.bat</a></p>
+<p class="note">Windows may show a blue &ldquo;Windows protected your PC&rdquo; box because the file is new &mdash;
+click <b>More info &rarr; Run anyway</b>. It only reads your settings and writes the report; it changes nothing.</p>
+
+<hr>
+
+<h2>The two most common fixes</h2>
+<p>While you wait to hear back, these solve it the vast majority of the time:</p>
+<ul>
+  <li><b>Fully restart Claude Desktop.</b> Closing the window isn&rsquo;t enough &mdash; right-click the Claude icon
+  in the system tray (bottom-right of the screen, near the clock) and choose <b>Quit</b>, then open it again.
+  The ArchiCAD tools only appear after a full restart.</li>
+  <li><b>Re-run the installer.</b> If the first install was interrupted, the connection never finishes setting up.
+  Running the installer again is safe and fixes a half-finished install.</li>
+</ul>
+
+<p class="note">After either fix, open Claude Desktop and ask: <i>&ldquo;What MCP tools do you have?&rdquo;</i>
+If it lists ArchiCAD tools, you&rsquo;re connected &mdash; open a project in ArchiCAD and you&rsquo;re ready to go.</p>
+
+<div class="footer">Architech ArchiCAD MCP &mdash; Diagnostic Guide</div>
+
+</body>
+</html>
